@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: matchlens-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: matchlens
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d matchlens"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Web GUI for PostgreSQL (accessible at http://localhost:8080)
+  adminer:
+    image: adminer:latest
+    container_name: matchlens-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
